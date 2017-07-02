@@ -31,7 +31,8 @@ app.use(bodyParser.urlencoded({
 app.use(express.static("public"));
 
 // Database configuration with mongoose
-mongoose.connect("mongodb://localhost/news_scraper");
+
+mongoose.connect("mongodb://heroku_2srkkwcb:jinnrd6v1nc3rr389fpsuhvmpo@ds143892.mlab.com:43892/heroku_2srkkwcb");
 var db = mongoose.connection;
 
 // Show any mongoose errors
