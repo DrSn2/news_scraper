@@ -32,7 +32,18 @@ app.use(express.static("public"));
 
 // Database configuration with mongoose
 
-mongoose.connect("mongodb://heroku_2srkkwcb:jinnrd6v1nc3rr389fpsuhvmpo@ds143892.mlab.com:43892/heroku_2srkkwcb");
+
+var PORT = process.env.PORT || 3000;
+// uristring sets connection address to the env variable, if it exists, else it uses local connection
+var uristring =
+    process.env.MONGODB_URI ||
+    "mongodb://heroku_2srkkwcb:jinnrd6v1nc3rr389fpsuhvmpo@ds143892.mlab.com:43892/heroku_2srkkwcb";
+    // 'mongodb://localhost/newsbucket';
+
+// use the var uristring here instead of the full MONGODB_URI
+mongoose.connect(uristring);
+
+
 var db = mongoose.connection;
 
 // Show any mongoose errors
@@ -251,6 +262,6 @@ app.post("/articles/:id", function (req, res) {
 
 
 // Listen on port 3000
-app.listen(3000, function () {
-  console.log("App running on port 3000!");
+app.listen(PORT, function () {
+  console.log("App running on PORT!");
 });
