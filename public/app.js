@@ -2,19 +2,27 @@
 // This displays all articles and controls GET AND POST --- 
 
 
-// 1. Grab the articles as a json and display
+
+// 1. Scrapes articles from website
 
 $(document).on("click", "#rescrape", function () {
-  $.getJSON("/scrape", function (data) {
+  // $.getJSON("/scrape", function () {
 
-  });
+  // })
+  $.ajax({
+    method: "GET",
+    url: "/scrape"
+  }).done(function (data){ 
 
-   $("#complete").text("Scrape complete - click 'display scrape'"); 
-  
+})
+ 
+console.log("hit");
+display()
+
 })
 
 
-// 2. deletes all articles
+// 2. deletes all scraped articles
 
 $(document).on("click", "#delete", function () {
   $.ajax({
@@ -23,44 +31,63 @@ $(document).on("click", "#delete", function () {
   }).done(function (data)
   { console.log("done") }
     )
-  // $.getJSON("/delete", function (data) {
-  // console.log("deleted")
-  // })
-$("#articles").empty();
 
+  $("#articles").empty();
+location.reload();
 })
 
-// 3. gets all articles 
 
-$(document).on("click", "#display", function () {
- $("#articles").empty();
+ 
+// 3. gets all articles from database and displays them
+
+// $(document).on("click", "#rescrape", display);
+
+function display() {
+  $("#articles").empty();
+  // location.reload();
+
   $.getJSON("/articles", function (data) {
     // For each one
-
+console.log("superhit")
     for (var i = 0; i < data.length; i++) {
-      var y=i+1
+      var y = i + 1
       // Display the apropos information on the page
-      var button=$("<button>").addClass("deleteOne").attr("id", i).text("Delete");
-      var button2=$("<button>").addClass("readNote").attr("data-id", data[i]._id).text("Read Note");
+      var button = $("<button>").addClass("deleteOne").attr("data-id", data[i]._id).text("Delete this article");
+      var button2 = $("<button>").addClass("readNote").attr("data-id", data[i]._id).text("Read Note");
       if (data[i].note) {
-             $("#articles").append("<p data-id='" + data[i]._id + "'>" + y + " )   Title: " + data[i].title + "<br /> <br>" + "Link: " + data[i].link + "<br>").append(button).append(button2).append("<br>  ____________________________" + "</p>")
+        $("#articles").append("<p data-id='" + data[i]._id + "'>" + y + " )   Title: " + data[i].title + '  <a href="' + data[i].link + '"> Link </a>'+"<br>").append(button).append(button2).append("<br>  ____________________________" + "</p>")
       }
       else {
-             $("#articles").append("<p data-id='" + data[i]._id + "'>" + y + " )   Title: " + data[i].title + "<br /> <br>" + "Link: " + data[i].link + "<br>").append(button).append("<br>  ____________________________" + "</p>");
+        $("#articles").append("<p data-id='" + data[i]._id + "'>" + y + " )   Title: " + data[i].title +  '  <a href="' + data[i].link + '"> Link </a>'+"<br>").append(button).append("<br>  ____________________________" + "</p>");
       }
     }
   });
-$("#complete").empty();
-})
+  $("#complete").empty().text("Click on a title to add a note").css("margin", "0 auto");
+  // .append("<br>");
+}
 
 // 4. Whenever someone CLICKS a p tag, GET article and append it to page. 
 
 $(document).on("click", ".deleteOne", function () {
-//delete One
+
+  var thisId = $(this).attr("data-id");
+
+  // Now make an ajax call for the Article
+
+  $.ajax({
+    method: "DELETE",
+    url: "/delete2/" + thisId
+  })
+    // With that done, add the note information to the page
+    .done(function (data) {
+     
+   display()
+
+    }) 
 
 });
 
- 
+
 $(document).on("click", ".readNote", function () {
   // Empty the notes from the note section
   $("#notes").empty();
@@ -75,7 +102,36 @@ $(document).on("click", ".readNote", function () {
   })
     // With that done, add the note information to the page
     .done(function (data) {
-      console.log(data);
+     
+     displayNotes(data);
+
+    })
+})
+
+$(document).on("click", "p", function () {
+  // Empty the notes from the note section
+  $("#notes").empty();
+  // Save the id from the p tag
+  var thisId = $(this).attr("data-id");
+
+  // Now make an ajax call for the Article
+
+  $.ajax({
+    method: "GET",
+    url: "/articles/" + thisId
+  })
+    // With that done, add the note information to the page
+    .done(function (data) {
+     
+     displayNotes(data);
+
+    })
+})
+
+function displayNotes(data) {
+
+/// breaking here. 
+
       // The title of the article
       $("#notes").append("<h2>" + data.title + "</h2>");
       // An input to enter a new title
@@ -96,8 +152,9 @@ $(document).on("click", ".readNote", function () {
         // Place the body of the note in the body textarea
         $("#bodyinput").val(data.note.body);
       }
-    });
-});
+}
+//     });
+// });
 
 // 5. When you CLICK the savenote button, run a POST request ---- 
 
@@ -122,11 +179,14 @@ $(document).on("click", "#savenote", function () {
       console.log(data);
       // Empty the notes section
       $("#notes").empty();
+ 
     });
 
   // Also, remove the values entered in the input and textarea for note entry
   $("#titleinput").val("");
   $("#bodyinput").val("");
+display()
+
 });
 
 
